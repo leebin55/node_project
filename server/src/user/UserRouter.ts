@@ -1,5 +1,4 @@
 import {Router} from 'express';
-// import {createTodo, getTodos ,updateTodo,deleteTodo} from './UserController'
 
 const router = Router();
 
