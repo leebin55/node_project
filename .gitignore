@@ -1,5 +1,6 @@
 dist
-Google.json
+*.sqlite
+
 # dependencies
 node_modules
 /.pnp

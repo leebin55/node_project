@@ -28,6 +28,5 @@ app.use(express.json())
 app.use('/todos',todoRouter)
 app.use('/users',userRouter)
 
-app.listen(8080)
 
 export default app;

@@ -1,17 +1,28 @@
-import { Table, Column, Model, HasMany } from 'sequelize-typescript'
+import { Table, Column, Model,DataType ,HasMany, Default, AllowNull } from 'sequelize-typescript'
 
-@Table
-class User extends Model {
-	@Column
-	'username': string
+@Table({timestamps:true, tableName:'users'})
+export default class User extends Model {
+	@Column({
+		type: DataType.STRING,
+		allowNull: false,
+	  })
+	username!: string
 
-	@Column
-	'password' : string
+	@Column({
+		type: DataType.STRING,
+		allowNull: false,
+	  })
+	password!: string
 
-	@Column 
-	'email':string
+	@Column ({
+		type: DataType.STRING,
+		unique:true,
+		allowNull: false,
+	})
+	email! :string
 
-	@Column 
-	'inactive' :boolean
-
+	@AllowNull(false)
+	@Default(false)
+	@Column (DataType.BOOLEAN)
+	inactive! :boolean
 }
