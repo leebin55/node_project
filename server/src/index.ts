@@ -1,6 +1,6 @@
 import app from './app'
 import sequelize from './config/database';
-import logger from './shared/logger'
+import logger from './utils/logger'
 
 sequelize.sync().then(()=>{
 	console.log('sequelize connection')
