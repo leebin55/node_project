@@ -11,9 +11,11 @@ type userType = {
 	email:string,
 	password:string,
 }
+
 type optionType={
 	language : string;
 }
+
 const postUser = (user:userType = validUser, options :optionType|null = null)=>{
 	const agent = request(app).post('/users/')
 	if(options && options.language){
@@ -32,10 +34,10 @@ describe('User Registration Test',()=>{
 		['username', 'Username cannot be null'],
 		['email', 'Email cannot be null'],
 		['password', 'Password cannot be null'],
-	  ])('when %s is null message [ %s ] is received', async (field , expectedMessage) => {
-		const user = validUser;
-		user[field] = null;
-		const response = await postUser(user);
+	  ])('when %s is null message [ %s ] is received', async (field, expectedMessage) => {
+		const userWithNull = validUser;
+		userWithNull[field as keyof userType] = null
+		const response = await postUser(userWithNull);
 		const body = response.body;
 		expect(body.validationErrors[field]).toBe(expectedMessage);
 	  });
