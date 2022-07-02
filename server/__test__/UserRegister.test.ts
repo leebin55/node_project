@@ -1,6 +1,22 @@
 import request from 'supertest';
 import app from '../src/app'
+import kr from '../locales/kr/translation.json'
+import en from '../locales/en/translation.json'
+import sequelize from '../src/config/database';
+import User from '../src/user/User';
 
+beforeAll(async()=>{
+	await sequelize.sync()
+})
+
+beforeEach(async()=>{
+	User.destroy({
+		truncate:true
+	})
+})
+afterAll(async()=>{
+
+})
 const validUser ={
 	username :"user01",
 	email: "user01@email.com",
@@ -34,15 +50,57 @@ describe('User Registration Test',()=>{
 		const response = await postUser();
 		expect(response.body.message).toBe('회원가입 완료')
 	})
-	it.each([
-		['username', '이름은 반드시 입력하셔야 합니다.'],
-		['email', '이메일은 반드시 입력하셔야 합니다.'],
-		['password', '비밀번호는 반드시 입력하셔야 합니다.'],
-	  ])('when %s is null message [ %s ] is received', async (field, expectedMessage) => {
-		const userWithNull = {...validUser};
-		userWithNull[field as keyof userType] = null
-		const response = await postUser(userWithNull);
-		const body = response.body;
-		expect(body.validationErrors[field]).toBe(expectedMessage);
-	  });
+
+})
+
+describe('User Join Validation',()=>{
+	
+	it.each`
+	field | message | language | value
+	${'username'}|${kr.username_null}|${'kr'}|${null}
+	${'username'}|${kr.username_length}|${'kr'}|${'aaa'}
+	${'username'}|${kr.username_length}|${'kr'}|${'a'.repeat(33)}
+	${'username'}|${kr.username_pattern}|${'kr'}|${'aaa안녕'}
+	${'username'}|${kr.username_pattern}|${'kr'}|${'a   aa'}
+	${'username'}|${kr.username_pattern}|${'kr'}|${'a----aa'}
+	${'username'}|${kr.username_pattern}|${'kr'}|${'aaa!!'}
+	${'username'}|${en.username_null}|${'en'}|${null}
+	${'username'}|${en.username_length}|${'en'}|${'aaa'}
+	${'username'}|${en.username_length}|${'en'}|${'a'.repeat(33)}
+	${'username'}|${en.username_pattern}|${'en'}|${'aaa안녕'}
+	${'username'}|${en.username_pattern}|${'en'}|${'a   aa'}
+	${'username'}|${en.username_pattern}|${'en'}|${'a----aa'}
+	${'username'}|${en.username_pattern}|${'en'}|${'aaa!!'}
+	${'password'}|${kr.password_null}|${'kr'}|${null}
+	${'password'}|${kr.password_length}|${'kr'}|${'a'.repeat(5)}
+	${'password'}|${kr.password_pattern}|${'kr'}|${'a12344'}
+	${'password'}|${kr.password_pattern}|${'kr'}|${'AAA12344'}
+	${'password'}|${kr.password_pattern}|${'kr'}|${'aAAEadasd'}
+	${'password'}|${kr.password_pattern}|${'kr'}|${'A12344!!'}
+	${'password'}|${kr.password_pattern}|${'kr'}|${'한글한글한글'}
+	${'password'}|${en.password_null}|${'en'}|${null}
+	${'password'}|${en.password_length}|${'en'}|${'a'.repeat(5)}
+	${'password'}|${en.password_pattern}|${'en'}|${'a12344'}
+	${'password'}|${en.password_pattern}|${'en'}|${'AAA12344'}
+	${'password'}|${en.password_pattern}|${'en'}|${'aAAEadasd'}
+	${'password'}|${en.password_pattern}|${'en'}|${'A12344!!'}
+	${'password'}|${en.password_pattern}|${'en'}|${'한글한글한글'}
+	${'email'}|${kr.email_null}|${'kr'}|${null}
+	${'email'}|${kr.email_invalid}|${'kr'}|${'AAA12344'}
+	${'email'}|${kr.email_invalid}|${'kr'}|${'이메일'}
+	${'email'}|${kr.email_invalid}|${'kr'}|${'이메일@.com'}
+	${'email'}|${kr.email_invalid}|${'kr'}|${'AAA12344@@'}
+	${'email'}|${kr.email_invalid}|${'kr'}|${'11'}
+	${'email'}|${en.email_null}|${'en'}|${null}
+	${'email'}|${en.email_invalid}|${'en'}|${'AAA12344'}
+	${'email'}|${en.email_invalid}|${'en'}|${'이메일'}	
+	${'email'}|${en.email_invalid}|${'en'}|${'이메일.com'}
+	${'email'}|${en.email_invalid}|${'en'}|${'AAA12344@@'}
+	${'email'}|${en.email_invalid}|${'en'}|${'11'}
+	`('returns $message when value of field is $value and language is set as $language',async({field,message,language,value})=>{
+		const user = {...validUser}
+		user[field as keyof userType] = value
+		const response = await postUser(user,{language})
+		expect(response.body.validationErrors[field]).toBe(message)
+	})
 })
