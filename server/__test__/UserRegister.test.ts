@@ -30,12 +30,16 @@ describe('User Registration Test',()=>{
 		expect(response.status).toBe(200)
 	})
 
+	it('returns 회원가입 완료 message when signup request is valid',async()=>{
+		const response = await postUser();
+		expect(response.body.message).toBe('회원가입 완료')
+	})
 	it.each([
-		['username', 'Username cannot be null'],
-		['email', 'Email cannot be null'],
-		['password', 'Password cannot be null'],
+		['username', '이름은 반드시 입력하셔야 합니다.'],
+		['email', '이메일은 반드시 입력하셔야 합니다.'],
+		['password', '비밀번호는 반드시 입력하셔야 합니다.'],
 	  ])('when %s is null message [ %s ] is received', async (field, expectedMessage) => {
-		const userWithNull = validUser;
+		const userWithNull = {...validUser};
 		userWithNull[field as keyof userType] = null
 		const response = await postUser(userWithNull);
 		const body = response.body;

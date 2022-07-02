@@ -1,1 +1,6 @@
-{}
+{
+	"username_null" : "Username cannot be null",
+	"email_null" : "Email cannot be null",
+	"password_null" : "Password cannot be null",
+	"user_create_success" : "User created"
+}

@@ -1,6 +1,6 @@
 const dev = require('./development');
 const staging = require('./staging');
-const test = require('./test');
+const test = require('./intest');
 const production = require('./production');
 
 module.exports = {

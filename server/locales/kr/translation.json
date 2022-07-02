@@ -1,1 +1,6 @@
-{}
+{
+	"username_null" : "이름은 반드시 입력하셔야 합니다.",
+	"email_null" : "이메일은 반드시 입력하셔야 합니다.",
+	"password_null" : "비밀번호는 반드시 입력하셔야 합니다.",
+	"user_create_success" : "회원가입 완료"
+}

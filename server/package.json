@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest --watch",
-    "start": "cross-env NODE_ENV=development nodemon dist/src/index.js"
+    "test": "cross-env NODE_ENV=test jest --watch --verbose false",
+    "start": "cross-env NODE_ENV=development nodemon dist/src/index.js",
+    "clean-up":"node test-cleanup"
   },
   "keywords": [],
   "author": "",

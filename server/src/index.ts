@@ -3,9 +3,9 @@ import sequelize from './config/database';
 import logger from './utils/logger'
 
 sequelize.sync().then(()=>{
-	console.log('sequelize connection')
+	logger.debug('sequelize connection')
 }).catch((e)=>{
-	console.log('db connection fail : ',e)
+	logger.error('db connection fail : ',e)
 });
 
 app.listen(8080,()=>{
