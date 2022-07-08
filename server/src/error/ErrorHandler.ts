@@ -9,7 +9,6 @@ interface IError{
 }
 
 
-
 const ErrorHandler=(err:IError, req:Request, res:Response, next:NextFunction)=>{
 
 	const {status , message , errors} = err;
