@@ -46,15 +46,30 @@ describe('User Registration Test',()=>{
 		expect(response.status).toBe(200)
 	})
 
-	it('returns 회원가입 완료 message when signup request is valid',async()=>{
+	it('returns success message when signup request is valid',async()=>{
 		const response = await postUser();
-		expect(response.body.message).toBe('회원가입 완료')
+		expect(response.body.message).toBe(kr.user_create_success)
 	})
 
+	it(' automatically saves inactive : true when user join ', async()=>{
+		 await postUser();
+		 const findUser = await User.findOne({where:{
+			email:validUser.email
+		 }})
+		expect(findUser.inactive).toBe(true);
+	})
+
+	it('must saves hashed password in db', async()=>{
+		await postUser();
+		const findUser=await User.findOne({where:{
+			email:validUser.email
+		}})
+
+		expect(findUser.password).not.toBe(validUser.password);
+	})
 })
 
-describe('User Join Validation',()=>{
-	
+describe('User Join Validation Fail Test',()=>{
 	it.each`
 	field | message | language | value
 	${'username'}|${kr.username_null}|${'kr'}|${null}
@@ -103,4 +118,17 @@ describe('User Join Validation',()=>{
 		const response = await postUser(user,{language})
 		expect(response.body.validationErrors[field]).toBe(message)
 	})
+
+	it(`returns status 400 when the email is already in use `,async()=>{
+		await User.create({...validUser})
+		const response = await postUser()
+		expect(response.status).toBe(400)
+	} )
+	
+	it(`returns [ ${kr.email_in_use} ] message when the email is already in use when language is set as korean `,async()=>{
+		await User.create({...validUser})
+		const response = await postUser()
+		expect(response.body.validationErrors.email).toBe(kr.email_in_use)
+	} )
+
 })

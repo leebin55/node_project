@@ -22,7 +22,7 @@ export default class User extends Model {
 	email! :string
 
 	@AllowNull(false)
-	@Default(false)
+	@Default(true)
 	@Column (DataType.BOOLEAN)
 	inactive! :boolean
 }

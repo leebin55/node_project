@@ -8,10 +8,7 @@ interface IError{
 	errors?:ValidationError[]
 }
 
-interface IValidation{
-	username?:string,
-	password?:string
-}
+
 
 const ErrorHandler=(err:IError, req:Request, res:Response, next:NextFunction)=>{
 

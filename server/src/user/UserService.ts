@@ -8,12 +8,6 @@ interface ISaveUserBody{
 	password : string
 }
 
-interface IUser{
-	username:string
-	email:string
-	password: string
-}
-
 const findByEmail = async(email:string)=>{
 	return await User.findOne({where :{email}})
 }
