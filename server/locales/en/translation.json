@@ -1,5 +1,6 @@
 {
 	"user_create_success" : "User created",
+	"user_create_fail":"User not created",
 	"username_null" : "Username cannot be null",
 	"username_length": "Must have min 4 and max 32 characters",
 	"username_pattern":"Username can only contain alphabets and number",

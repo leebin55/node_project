@@ -9,7 +9,7 @@ interface configData {
 		username : string,
 		password : string ,
 		dialect : Dialect ,
-		storage? : string
+		host:string,
 		logging :boolean
 	
 }
@@ -22,9 +22,7 @@ console.log(dbConfig)
 	database : dbConfig.database,
 	username: dbConfig.username,
 	password : dbConfig.password,
-	dialect: dbConfig.dialect,
-	storage:dbConfig.storage,
-	logging : dbConfig.logging
+	dialect:dbConfig.dialect
  })
 
  sequelize.addModels([User])

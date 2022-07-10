@@ -6,7 +6,6 @@ class ValidationException {
 	message : string
 
 	constructor(errors:ValidationError[]){
-		console.log("validation exception constructor")
 		this.status = 400;
 		this.errors = errors
 		this.message ='validation_failure'

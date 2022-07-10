@@ -1,6 +1,11 @@
 import User from './User'
 import bcrypt from 'bcrypt'
 import logger from '../utils/logger'
+import config from 'config'
+import sequelize from '../config/database'
+import { nextTick } from 'process'
+import CreateUserException from '../error/CreateUserException'
+
 
 interface ISaveUserBody{
 	username : string
@@ -14,10 +19,15 @@ const findByEmail = async(email:string)=>{
 
 const saveUser = async(body : ISaveUserBody)=>{
 	const {username, password , email} = body
+	const hashedPassword = await bcrypt.hash(password,12)
+	const transaction = await sequelize.transaction()
+	await User.create({username, password:hashedPassword,email}, {transaction})
 	try{
-		User.create({username, password,email})
+		await transaction.commit()
 	}catch(e){
-		logger.error('SaveUser fail')
+		logger.error('SaveUser fail and rollback:' ,e)
+		await transaction.rollback()
+		throw new CreateUserException()
 	}
 
 }

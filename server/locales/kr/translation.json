@@ -1,5 +1,6 @@
 {
 	"user_create_success" : "회원가입 완료",
+	"user_create_fail":"회원가입실패",
 	"username_null" : "이름은 반드시 입력하셔야 합니다",
 	"username_length": "이름은 4글자 이상 32글자 이하",
 	"username_pattern":"이름은 영문자와 숫자만 가능",

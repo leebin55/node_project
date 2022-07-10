@@ -29,10 +29,10 @@ type userType = {
 }
 
 type optionType={
-	language : string;
+	language : string | null;
 }
 
-const postUser = (user:userType = validUser, options :optionType|null = null)=>{
+const postUser = (user:userType = validUser, options :optionType = null)=>{
 	const agent = request(app).post('/users/')
 	if(options && options.language){
 		agent.set('Accept-Language', options.language)
@@ -60,7 +60,7 @@ describe('User Registration Test',()=>{
 	})
 
 	it('must saves hashed password in db', async()=>{
-		await postUser();
+		const response = await postUser();
 		const findUser=await User.findOne({where:{
 			email:validUser.email
 		}})

@@ -3,7 +3,6 @@ import {findByEmail} from '../user/UserService'
 
 
 const UserValidator=()=>{
-	console.log("user validator execute");
 	return[
 		check('username')
 		.notEmpty()

@@ -1,6 +1,9 @@
 dist
 *.sqlite
 
+development.js
+test.js
+staging.js
 # dependencies
 node_modules
 /.pnp

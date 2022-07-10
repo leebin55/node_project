@@ -3,8 +3,9 @@ module.exports = {
     database: 'testDB',
     username: 'node',
     password: '12345',
-    dialect: 'sqlite',
-    storage: ':memory:',
+    dialect: 'mysql',
+    host: 'localhost',
     logging: false,
   },
+  redisUrl: 'redis://127.0.0.1:6379',
 };
