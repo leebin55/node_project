@@ -3,19 +3,56 @@ import app from '../src/app'
 import kr from '../locales/kr/translation.json'
 import en from '../locales/en/translation.json'
 import sequelize from '../src/config/database';
-import User from '../src/user/User';
+import {User} from '../src/user/User';
+import {SMTPServer} from 'smtp-server'
+import config from 'config'
+
+let server:SMTPServer, lastMail;
+let smtpFailure = false; // true => sending email fails
+
+interface IError extends Error{
+	responseCode?:number
+}
 
 beforeAll(async()=>{
-	await sequelize.sync()
+
+	server = new SMTPServer({
+		authOptional:true,
+		onData(stream, session, callback){
+			let mailBody : String;
+			stream.on('data',(data)=>{
+				mailBody += data.toString()
+			})
+			stream.on('end',()=>{
+				if(smtpFailure){
+					const err: IError = new Error('Invalid mailBox')
+					err.responseCode = 553;
+					return callback(err)
+				}
+				lastMail = mailBody;
+				callback();//done
+			})
+		}
+	})
+
+	const  mailData :{port:number}= config.get('mail')
+	await server.listen(mailData.port ,'localhost')
+	if(process.env.NODE_ENV==='test'){
+		await sequelize.sync()
+	}
+	jest.setTimeout(20000);
 })
 
 beforeEach(async()=>{
-	User.destroy({
+	smtpFailure = false; 
+	await User.destroy({
 		truncate:true
 	})
 })
 afterAll(async()=>{
 
+	await server.close()
+	jest.setTimeout(5000)
 })
 const validUser ={
 	username :"user01",
@@ -40,6 +77,13 @@ const postUser = (user:userType = validUser, options :optionType = null)=>{
 	return agent.send(user)
 }
 
+const postAndFindUser =async(user:userType = validUser)=>{
+	await postUser(user);
+	return await User.findOne({where:{
+		email:user.email
+	 }})
+}
+
 describe('User Registration Test',()=>{
 	it('returns 200 when signup request is valid', async()=>{
 		const response = await postUser();
@@ -51,12 +95,8 @@ describe('User Registration Test',()=>{
 		expect(response.body.message).toBe(kr.user_create_success)
 	})
 
-	it(' automatically saves inactive : true when user join ', async()=>{
-		 await postUser();
-		 const findUser = await User.findOne({where:{
-			email:validUser.email
-		 }})
-		expect(findUser.inactive).toBe(true);
+	it('creates token for email verification when signup request is valid ',async()=>{
+		
 	})
 
 	it('must saves hashed password in db', async()=>{
@@ -67,6 +107,8 @@ describe('User Registration Test',()=>{
 
 		expect(findUser.password).not.toBe(validUser.password);
 	})
+
+	
 })
 
 describe('User Join Validation Fail Test',()=>{
@@ -131,4 +173,42 @@ describe('User Join Validation Fail Test',()=>{
 		expect(response.body.validationErrors.email).toBe(kr.email_in_use)
 	} )
 
+})
+
+describe('Account activation',()=>{
+	it(' automatically saves inactive : true when user join ', async()=>{
+		const findUser = await postAndFindUser();
+	   expect(findUser.inactive).toBe(true);
+   })
+
+   it(' would still inactivated user if there was request body with inactive as false',async()=>{
+	const inactivatedUser = {...validUser,inactive:false}
+	 const findUser = await postAndFindUser(inactivatedUser)
+	expect(findUser.inactive).toBe(true)
+   })
+
+	it('sends email for account activation when user registration is success',async()=>{
+
+	})
+
+	it('sends an Account activation email with token for activation' ,async()=>{
+		const token = (await postAndFindUser()).mailToken
+		expect(token).not.toBe(null)
+	})
+
+	it('returns 502 Bad Gateway when sending email fails', async()=>{
+
+	})
+
+	it('returns Email failure when sending email fails',async()=>{
+
+	})
+
+	it('does not save user to db if activation email fails',async()=>{
+
+	})
+
+	it('returns Email failure message in error response body when validation fails',async () => {
+		
+	})
 })

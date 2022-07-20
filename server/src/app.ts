@@ -12,7 +12,7 @@ i18next
 	.use(Backend)
 	.use(middleware.LanguageDetector)
 	.init({
-		debug:true,
+		debug:false,
 		fallbackLng:'kr',
 		lng:'kr',
 		ns:['translation'],

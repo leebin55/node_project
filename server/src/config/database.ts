@@ -1,10 +1,10 @@
 import { Sequelize } from "sequelize-typescript";
 import config from 'config';
 import { Dialect } from "sequelize/types";
-import User from '../user/User'
+import {User} from '../user/User'
 
 
-interface configData {
+interface IConfig {
 		database : string,
 		username : string,
 		password : string ,
@@ -14,7 +14,7 @@ interface configData {
 	
 }
 
-const dbConfig : configData = config.get('database');
+const dbConfig : IConfig = config.get('database');
 
 console.log(dbConfig)
 //new Sequelize(database , username , password ,{dialect , opt...})
