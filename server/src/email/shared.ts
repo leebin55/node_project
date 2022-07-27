@@ -1,3 +1,4 @@
 export enum mailSubject {
-	'ACCOUNT ACTIVATION', 'PASSWORD RESET'
+	Activate = 'ACCOUNT ACTIVATION',
+	Reset = 'PASSWORD RESET'
 }

@@ -1,8 +1,7 @@
 import {check} from 'express-validator';
 import {findByEmail} from '../user/UserService'
 
-
-const UserValidator=()=>{
+const UserJoinValidator=()=>{
 	return[
 		check('username')
 		.notEmpty()
@@ -22,7 +21,7 @@ const UserValidator=()=>{
 		.bail()
 		.custom(async(email)=>{
 			const user = await findByEmail(email)
-			if(user)throw new Error('email_in_use')
+			if(user) throw new Error('email_in_use')
 		})
 		,
 	  check('password')
@@ -37,7 +36,4 @@ const UserValidator=()=>{
 	]	
 }
 
-const postValidator=()=>{
-	
-}
-export { UserValidator};
+export { UserJoinValidator};

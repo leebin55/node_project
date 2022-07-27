@@ -3,7 +3,7 @@ import app from '../src/app'
 import kr from '../locales/kr/translation.json'
 import en from '../locales/en/translation.json'
 import sequelize from '../src/config/database';
-import {User} from '../src/user/User';
+import User from '../src/user/User';
 import {SMTPServer} from 'smtp-server'
 import config from 'config'
 
@@ -50,7 +50,6 @@ beforeEach(async()=>{
 	})
 })
 afterAll(async()=>{
-
 	await server.close()
 	jest.setTimeout(5000)
 })
@@ -93,10 +92,6 @@ describe('User Registration Test',()=>{
 	it('returns success message when signup request is valid',async()=>{
 		const response = await postUser();
 		expect(response.body.message).toBe(kr.user_create_success)
-	})
-
-	it('creates token for email verification when signup request is valid ',async()=>{
-		
 	})
 
 	it('must saves hashed password in db', async()=>{
@@ -175,40 +170,75 @@ describe('User Join Validation Fail Test',()=>{
 
 })
 
-describe('Account activation',()=>{
-	it(' automatically saves inactive : true when user join ', async()=>{
+describe('Account activation Test',()=>{
+	it(' saves [active : false]  by default whenever a user joins', async()=>{
 		const findUser = await postAndFindUser();
-	   expect(findUser.inactive).toBe(true);
+	   expect(findUser.active).toBe(false);
    })
 
-   it(' would still inactivated user if there was request body with inactive as false',async()=>{
-	const inactivatedUser = {...validUser,inactive:false}
+   it(' is still inactivated user if there is request body with active as true(Using token is only way to activate the user)',async()=>{
+	const inactivatedUser = {...validUser,active:true}
 	 const findUser = await postAndFindUser(inactivatedUser)
-	expect(findUser.inactive).toBe(true)
+	expect(findUser.active).toBe(false)
    })
-
-	it('sends email for account activation when user registration is success',async()=>{
-
-	})
-
-	it('sends an Account activation email with token for activation' ,async()=>{
-		const token = (await postAndFindUser()).mailToken
-		expect(token).not.toBe(null)
+   
+  
+  
+	it('creates token for user activation when signup request is valid and stores token in DB' ,async()=>{
+		const token = (await postAndFindUser()).token
+		expect(token.length).toBe(16)
 	})
 
 	it('returns 502 Bad Gateway when sending email fails', async()=>{
-
+		// trick : in case smtp server fail 
+		smtpFailure = true; 
+		const res = await postUser()
+		expect(res.status).toBe(502)
 	})
 
 	it('returns Email failure when sending email fails',async()=>{
-
+		smtpFailure = true;
+		const res = await postUser()
+		expect(res.body.message).toBe(kr.email_send_failure)
 	})
 
 	it('does not save user to db if activation email fails',async()=>{
-
+		smtpFailure = true;
+		const user = await postAndFindUser()
+		expect(user).toBe(null)
 	})
 
 	it('returns Email failure message in error response body when validation fails',async () => {
-		
+		const response = await postUser({
+			username: null,
+			email: validUser.email,
+			password: validUser.password,
+		  });
+		  expect(response.body.message).toBe(kr.validation_failure);
 	})
+
+	it('activates the account [active = true] when correct token is sent from email ',async()=>{
+		let user = await postAndFindUser();
+		const token = user.token
+		await request(app).get('/users/activate/'+token)
+		user = await User.findOne({where: {email:validUser.email}})
+		expect(user.active).toBe(true);
+
+	   })
+
+	   it(' removes token in DB when activating user is success',async()=>{
+		let user = await postAndFindUser();
+		const token = user.token
+		await request(app).get('/users/activate/'+token)
+		user = await User.findOne({where: {email:validUser.email}})
+		expect(user.token).toBe(null);
+	   })
+
+	   it(`returns message [${kr.account_activation_success} ] when activating user is success`,async()=>{
+		const user = await postAndFindUser()
+		const token = user.token
+		const res =await request(app).get('/users/activate/'+token)
+		expect(res.body.message).toBe(kr.account_activation_success);
+	
+	   })
 })

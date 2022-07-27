@@ -11,8 +11,8 @@ module.exports = {
     host: 'smtp.ethereal.email',
     port: 587,
     auth: {
-      user: 'tate.von39@ethereal.email',
-      pass: '6A2G5fVC6Vqmbcpv5J',
+      user: 'lilla.davis85@ethereal.email',
+      pass: 'wFvJvWKSZJkFU9S3fm',
     },
   },
   redisUrl: 'redis://127.0.0.1:6379',
